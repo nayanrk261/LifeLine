@@ -3,31 +3,64 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/authMiddleware");
+const { body } = require("express-validator");
+const validate = require("../middleware/validationMiddleware");
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
+router.post(
+    "/register",
+    [
+        body("name").trim().isLength({ min: 3, max: 50 }),
+        body("email").isEmail().normalizeEmail(),
+        body("password").isLength({ min: 6 })
+    ],
+    validate,
+    async (req, res) => {
     const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return res.status(409).json({
+            message: "Email already registered"
+        });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-        name,
-        email,
-        passwordHash
-    });
+    try {
+        const user = await User.create({
+            name,
+            email,
+            passwordHash
+        });
 
-    res.json({
-        message: "User registered successfully",
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email
+        res.json({
+            message: "User registered successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({
+                message: "Email already registered"
+            });
         }
-    })
+        throw error;
+    }
 });
 
-router.post("/login", async (req, res) => {
+router.post(
+    "/login",
+    [
+        body("email").isEmail().normalizeEmail(),
+        body("password").isLength({ min: 6 })
+    ],
+    validate,
+    async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });

@@ -17,6 +17,13 @@ async function checkApplication(url) {
     const statusCode = response.status;
 
     const success = response.ok;
+
+    return{
+        success,
+        statusCode, 
+        responseTime,
+        error: null
+    }
     }
     catch(error) {
         const endTime = Date.now();
@@ -24,6 +31,15 @@ async function checkApplication(url) {
 
         console.log(error.name);
         console.log(error.message);
+
+        return{
+            success : false,
+            statusCode : null,
+            responseTime,
+            error : error.message
+        }
     }
 
 }
+
+module.exports = { checkApplication };

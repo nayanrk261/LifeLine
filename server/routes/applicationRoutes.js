@@ -4,6 +4,8 @@ const Application = require("../models/Application");
 const authMiddleware = require("../middleware/authMiddleware");
 const { body } = require("express-validator");
 const validate = require("../middleware/validationMiddleware");
+const CheckResult = require("../models/CheckResult");
+const { checkApplication } = require("../services/healthCheckService");
 
 const router = express.Router();
 
@@ -129,6 +131,34 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     res.json({
         message: "Application deleted successfully"
     });
+});
+
+router.post("/:id/check", authMiddleware, async (req, res) => {
+    const applicationId = req.params.id;
+
+    const application = await Application.findOne({
+        _id: applicationId,
+        ownerId: req.user.userId
+    });
+
+    if (!application) {
+        return res.status(404).json({
+            message: "Application not found"
+        });
+    }
+
+    const result = await checkApplication(application.url);
+
+    const checkResult = await CheckResult.create({
+        applicationId: application._id,
+        timestamp: new Date(),
+        success: result.success,
+        statusCode: result.statusCode,
+        responseTime: result.responseTime,
+        error: result.error
+    });
+
+    res.json(checkResult);
 });
 
 module.exports = router;

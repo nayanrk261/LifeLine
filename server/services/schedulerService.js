@@ -1,4 +1,6 @@
 const Application = require("../models/Application");
+const { checkApplication } = require("./healthCheckService");
+const CheckResult = require("../models/CheckResult");
 function isCheckDue(application) {
 
     if (!application.lastCheckedAt) {
@@ -26,7 +28,17 @@ cron.schedule("* * * * *", async    () => {
 
     for (const application of applications) {
     if (isCheckDue(application)) {
-        console.log("Check is due:", application.name);
+        const result = await checkApplication(application.url);
+        const checkResult = await CheckResult.create({
+           applicationId: application._id,
+           timestamp: new Date(),
+           success: result.success,
+           statusCode: result.statusCode,
+           responseTime: result.responseTime,
+           error: result.error
+       });
+        application.lastCheckedAt = new Date();
+        await application.save();
     }
-}
+    }
 });

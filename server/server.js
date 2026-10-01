@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
+const reliabilityRoutes = require("./routes/reliabilityRoutes");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/reliability", reliabilityRoutes);
 
 // Error handler — MUST be after routes
 app.use(errorHandler);

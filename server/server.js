@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 const reliabilityRoutes = require("./routes/reliabilityRoutes");
+const sloRoutes = require("./routes/sloRoutes");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/reliability", reliabilityRoutes);
+app.use("/api/applications", sloRoutes);
 
 // Error handler — MUST be after routes
 app.use(errorHandler);

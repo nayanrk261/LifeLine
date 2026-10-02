@@ -1,9 +1,14 @@
 const CheckResult = require("../models/CheckResult");
 
-async function calculateAvailability(applicationId) {
+async function calculateAvailability(applicationId, days) {
+
+    const cutoff = new Date();
+
+    cutoff.setDate(cutoff.getDate() - days);
 
     const results = await CheckResult.find({
-        applicationId: applicationId
+        applicationId: applicationId,
+        timestamp: { $gte: cutoff }
     });
 
     if (results.length === 0) {

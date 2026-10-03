@@ -10,6 +10,7 @@ const applicationRoutes = require("./routes/applicationRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 const reliabilityRoutes = require("./routes/reliabilityRoutes");
 const sloRoutes = require("./routes/sloRoutes");
+const incidentRoutes = require("./routes/incidentRoutes");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/reliability", reliabilityRoutes);
 app.use("/api/applications", sloRoutes);
+app.use("/api/incidents", incidentRoutes);
 
 // Error handler — MUST be after routes
 app.use(errorHandler);
